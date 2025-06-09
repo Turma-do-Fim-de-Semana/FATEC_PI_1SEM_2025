@@ -1,0 +1,37 @@
+-- Ativar extensão para gerar UUIDs automaticamente
+create extension if not exists "uuid-ossp";
+
+-- Tabela de perfis (dados básicos de todos os usuários autenticados)
+create table profiles (
+  id uuid primary key references auth.users(id) on delete cascade,
+  full_name text not null,
+  is_provider boolean default false, -- true = profissional, false = usuário comum
+  created_at timestamp with time zone default now()
+);
+
+-- Tabela de categorias/setores (ex: pedreiro, pintor)
+create table categories (
+  id uuid primary key default uuid_generate_v4(),
+  name text not null unique
+);
+
+-- Tabela de dados de prestadores de serviço
+create table providers (
+  id uuid primary key references auth.users(id) on delete cascade,
+  category_id uuid references categories(id) on delete set null,
+  phone text,
+  email text,
+  description text,
+  location text,
+  created_at timestamp with time zone default now()
+);
+
+-- Tabela de avaliações dos profissionais
+create table ratings (
+  id uuid primary key default uuid_generate_v4(),
+  provider_id uuid references providers(id) on delete cascade,
+  user_id uuid references auth.users(id) on delete cascade,
+  rating integer not null check (rating >= 1 and rating <= 5),
+  comment text,
+  created_at timestamp with time zone default now()
+);
