@@ -36,8 +36,6 @@ Aplicativo mobile desenvolvido em Flutter com Supabase como backend, com o objet
 ### Pré-requisitos
 
 - Flutter SDK instalado (`flutter doctor`)
-- Conta no [Supabase](https://supabase.com) com um projeto criado
-- Criar as tabelas no Supabase (ver instruções abaixo)
 - Clonar este repositório:
 
 ```bash
