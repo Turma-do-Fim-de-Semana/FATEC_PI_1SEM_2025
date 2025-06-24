@@ -35,3 +35,50 @@ create table ratings (
   comment text,
   created_at timestamp with time zone default now()
 );
+
+-- tabelas v2
+
+-- Create the Category table
+CREATE TABLE Category (
+    id UUID PRIMARY KEY,
+    description VARCHAR(255) NOT NULL
+);
+
+-- Create the Client table
+CREATE TABLE Client (
+    id UUID PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    created_at DATE,
+    updated_at DATE
+);
+
+-- Create the Professional table
+CREATE TABLE Professional (
+    id UUID PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    phone VARCHAR(20),
+    email VARCHAR(255) UNIQUE NOT NULL,
+    description TEXT,
+    city VARCHAR(100),
+    image TEXT,  -- stores the image URL or path
+    category_id UUID,
+    schedule VARCHAR(255),
+    created_at DATE,
+    updated_at DATE,
+    CONSTRAINT fk_category FOREIGN KEY (category_id) REFERENCES Category(id)
+);
+
+-- Create the Review table
+CREATE TABLE Review (
+    id UUID PRIMARY KEY,
+    rating DOUBLE PRECISION NOT NULL,
+    comment TEXT,
+    professional_id UUID NOT NULL,
+    client_id UUID NOT NULL,
+    created_at DATE,
+    CONSTRAINT fk_review_professional FOREIGN KEY (professional_id) REFERENCES Professional(id),
+    CONSTRAINT fk_review_client FOREIGN KEY (client_id) REFERENCES Client(id)
+);
+

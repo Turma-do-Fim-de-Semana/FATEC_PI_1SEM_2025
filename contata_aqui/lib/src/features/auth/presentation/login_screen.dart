@@ -1,3 +1,5 @@
+import 'package:contata_aqui/src/features/userprofile/data/professional_viewmodel.dart';
+import 'package:contata_aqui/src/features/index/data/category_viewmodel.dart';
 import 'package:flutter/material.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -13,16 +15,19 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+    fetchProfessionals().then((value) => print(value));
+    fetchcategories().then((value) => print(value));
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.pop(context),
-        ),
         title: Text(
           'Login',
           style: TextStyle(color: Colors.white, fontSize: 16),
@@ -55,10 +60,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       textAlign: TextAlign.center,
                     ),
-
                     SizedBox(height: 32),
-
-                    // Campo Email
                     Text(
                       'Email:',
                       style: TextStyle(
@@ -83,10 +85,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                     ),
-
                     SizedBox(height: 20),
-
-                    // Campo Senha
                     Text(
                       'Senha:',
                       style: TextStyle(
@@ -139,9 +138,19 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                     ),
-
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pushNamed(context, '/recover');
+                      },
+                      child: Text(
+                        'Esqueceu sua senha?  Clique Aqui',
+                        style: TextStyle(
+                          color: Colors.black,
+                          decoration: TextDecoration.underline,
+                        ),
+                      ),
+                    ),
                     SizedBox(height: 24),
-
                     // Botão Google
                     SizedBox(
                       height: 48,
@@ -164,10 +173,6 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                     ),
-
-                    SizedBox(height: 16),
-
-                    // Link para cadastro
                     TextButton(
                       onPressed: () {
                         Navigator.pushNamed(context, '/register');

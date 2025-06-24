@@ -1,89 +1,87 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:contata_aqui/src/features/userprofile/data/professional_viewmodel.dart';
 
-class ContactListScreen extends StatelessWidget {
+class ContactListScreen extends ConsumerWidget {
   const ContactListScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    // Recebe o argumento passado pela navegação
-    final String? serviceName =
+  Widget build(BuildContext context, WidgetRef ref) {
+    final String? categoryId =
         ModalRoute.of(context)?.settings.arguments as String?;
+
+    final professionals =
+        categoryId != null
+            ? ref.watch(professionalsByCategoryProvider(categoryId))
+            : null;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          serviceName != null
-              ? 'Profissionais - $serviceName'
-              : 'Lista de Contatos',
-        ),
+        title: Text(categoryId != null ? 'Profissionais' : 'Lista de Contatos'),
         backgroundColor: Colors.orange,
         foregroundColor: Colors.white,
       ),
       body: SafeArea(
-        child: Column(
-          children: [
-            // Exibe o serviço selecionado
-            if (serviceName != null)
-              Container(
-                width: double.infinity,
-                padding: EdgeInsets.all(16),
-                margin: EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.orange[50],
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.orange.shade200),
-                ),
-                child: Text(
-                  'Buscando profissionais de: $serviceName',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.orange[800],
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ),
+        child:
+            categoryId == null
+                ? const Center(child: Text('Categoria não informada.'))
+                : professionals!.when(
+                  data: (list) {
+                    if (list.isEmpty) {
+                      return const Center(
+                        child: Text('Nenhum profissional encontrado.'),
+                      );
+                    }
 
-            // Lista de profissionais (exemplo)
-            Expanded(
-              child: ListView.builder(
-                padding: EdgeInsets.all(16),
-                itemCount: 5, // Exemplo com 5 profissionais
-                itemBuilder: (context, index) {
-                  return Card(
-                    margin: EdgeInsets.only(bottom: 12),
-                    child: ListTile(
-                      leading: CircleAvatar(
-                        backgroundColor: Colors.orange,
-                        child: Icon(Icons.person, color: Colors.white),
-                      ),
-                      title: Text('Profissional ${index + 1}'),
-                      subtitle: Text(
-                        'Especialista em ${serviceName ?? "serviços"}',
-                      ),
-                      trailing: Icon(Icons.arrow_forward_ios),
-                      onTap: () {
-                        // Ação ao clicar no profissional
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              'Contato com Profissional ${index + 1}',
-                            ),
+                    return ListView.builder(
+                      padding: const EdgeInsets.all(16),
+                      itemCount: list.length,
+                      itemBuilder: (context, index) {
+                        final pro = list[index];
+                        return Card(
+                          margin: const EdgeInsets.only(bottom: 12),
+                          child: ListTile(
+                            leading:
+                                pro.image != null
+                                    ? CircleAvatar(
+                                      backgroundImage: NetworkImage(pro.image!),
+                                    )
+                                    : const CircleAvatar(
+                                      backgroundColor: Colors.orange,
+                                      child: Icon(
+                                        Icons.person,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                            title: Text(pro.name),
+                            subtitle: Text(pro.city ?? 'Cidade não informada'),
+                            trailing: const Icon(Icons.arrow_forward_ios),
+                            onTap: () {
+                              Navigator.pushNamed(
+                                context,
+                                '/user',
+                                arguments: pro,
+                              );
+                            },
                           ),
                         );
                       },
-                    ),
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
+                    );
+                  },
+                  loading:
+                      () => const Center(child: CircularProgressIndicator()),
+                  error:
+                      (err, _) => Center(child: Text('Erro ao carregar: $err')),
+                ),
       ),
       bottomNavigationBar: BottomNavigationBar(
+        currentIndex: 1,
+        onTap: (int index) {
+          // Navegação de abas, se quiser usar futuramente
+        },
         selectedItemColor: Colors.orange,
         unselectedItemColor: Colors.grey,
-        items: [
+        items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: ''),
           BottomNavigationBarItem(icon: Icon(Icons.grid_view), label: ''),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: ''),
