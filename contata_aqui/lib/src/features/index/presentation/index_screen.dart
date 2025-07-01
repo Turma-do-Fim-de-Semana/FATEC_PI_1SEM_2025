@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:contata_aqui/src/features/index/data/category_viewmodel.dart';
+import 'dart:async';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class IndexScreen extends ConsumerStatefulWidget {
   const IndexScreen({super.key});
@@ -14,6 +18,10 @@ class _IndexScreenState extends ConsumerState<IndexScreen> {
   int _selectedIndex = 0;
   final TextEditingController _searchController = TextEditingController();
   String searchText = '';
+
+  GoogleMapController? _mapController;
+  LatLng? _currentPosition;
+  Marker? _userMarker;
 
   final Map<String, Map<String, dynamic>> categoryStyles = {
     'Barbeiro': {
@@ -62,6 +70,68 @@ class _IndexScreenState extends ConsumerState<IndexScreen> {
     },
   };
 
+  Future<void> _getCurrentLocation() async {
+  var status = await Permission.location.status;
+
+  // Se ainda não foi concedida, mostra o aviso antes
+  if (!status.isGranted) {
+    bool? aceitou = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Permitir localização"),
+        content: const Text(
+          "Ative a localização para encontrar profissionais próximos de você.",
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text("Agora não"),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text("Permitir"),
+          ),
+        ],
+      ),
+    );
+
+    if (aceitou != true) return; // Usuário recusou na explicação
+  }
+
+  // Agora pede a permissão real
+  var result = await Permission.location.request();
+
+  if (result.isGranted) {
+    Position position = await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.high,
+    );
+
+    LatLng userLocation = LatLng(position.latitude, position.longitude);
+
+    setState(() {
+      _currentPosition = userLocation;
+      _userMarker = Marker(
+        markerId: const MarkerId('user'),
+        position: userLocation,
+        infoWindow: const InfoWindow(title: 'Você está aqui'),
+      );
+    });
+
+    _mapController?.animateCamera(
+      CameraUpdate.newLatLngZoom(userLocation, 15),
+    );
+  } else {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Permissão de localização negada')),
+    );
+  }
+}
+  @override
+  void initState() {
+    super.initState();
+    _getCurrentLocation(); // Busca a localização assim que o widget inicia
+  }
+
   @override
   Widget build(BuildContext context) {
     final categoryAsync = ref.watch(categoriesProvider);
@@ -109,18 +179,48 @@ class _IndexScreenState extends ConsumerState<IndexScreen> {
                 ],
               ),
             ),
-            // Mapa placeholder
-            Container(
-              height: 120,
-              margin: const EdgeInsets.symmetric(horizontal: 16),
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Center(
-                child: Text('Mapa', style: TextStyle(color: Colors.grey[600])),
+
+            // Mapa real com botão de localização
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Column(
+                children: [
+                  SizedBox(
+                    height: 180,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: _currentPosition != null
+                          ? GoogleMap(
+                              initialCameraPosition: CameraPosition(
+                                target: _currentPosition!,
+                                zoom: 15,
+                              ),
+                              onMapCreated: (controller) {
+                                _mapController = controller;
+                              },
+                              markers: _userMarker != null
+                                  ? {_userMarker!}
+                                  : <Marker>{},
+                              myLocationButtonEnabled: false,
+                            )
+                          : const Center(
+                              child: CircularProgressIndicator(),
+                            ),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: ElevatedButton.icon(
+                      onPressed: _getCurrentLocation,
+                      icon: const Icon(Icons.location_on),
+                      label: const Text("Mostrar localização"),
+                    ),
+                  ),
+                ],
               ),
             ),
+
             const SizedBox(height: 20),
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 16),
@@ -133,37 +233,34 @@ class _IndexScreenState extends ConsumerState<IndexScreen> {
               ),
             ),
             const SizedBox(height: 16),
+
+            // Lista de categorias
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: categoryAsync.when(
                   data: (categories) {
-                    final filtered =
-                        categories
-                            .where(
-                              (cat) => cat.description.toLowerCase().contains(
-                                searchText,
-                              ),
-                            )
-                            .toList();
+                    final filtered = categories
+                        .where((cat) => cat.description
+                            .toLowerCase()
+                            .contains(searchText))
+                        .toList();
 
                     return GridView.builder(
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            childAspectRatio: 1.2,
-                            crossAxisSpacing: 10,
-                            mainAxisSpacing: 12,
-                          ),
+                        crossAxisCount: 2,
+                        childAspectRatio: 1.2,
+                        crossAxisSpacing: 10,
+                        mainAxisSpacing: 12,
+                      ),
                       itemCount: filtered.length,
                       itemBuilder: (context, index) {
                         final category = filtered[index];
-                        final style =
-                            categoryStyles[category.description] ??
-                            {
-                              'color': Colors.grey[300],
-                              'icon': 'lib/assets/image/default.svg',
-                            };
+                        final style = categoryStyles[category.description] ?? {
+                          'color': Colors.grey[300],
+                          'icon': 'lib/assets/image/default.svg',
+                        };
 
                         return GestureDetector(
                           onTap: () {
@@ -202,12 +299,10 @@ class _IndexScreenState extends ConsumerState<IndexScreen> {
                       },
                     );
                   },
-                  loading:
-                      () => const Center(child: CircularProgressIndicator()),
-                  error:
-                      (err, _) => Center(
-                        child: Text('Erro ao carregar categorias: $err'),
-                      ),
+                  loading: () =>
+                      const Center(child: CircularProgressIndicator()),
+                  error: (err, _) =>
+                      Center(child: Text('Erro ao carregar categorias: $err')),
                 ),
               ),
             ),
