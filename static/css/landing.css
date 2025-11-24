@@ -1,0 +1,307 @@
+/* RESET */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Segoe UI", Arial, sans-serif;
+    color: #1a1a1a;
+    line-height: 1.6;
+    background: #fff;
+}
+
+/* Containers */
+.container {
+    width: 100%;
+    max-width: 1250px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+}
+
+/* ---------------- */
+/* HERO */
+/* ---------------- */
+
+.hero {
+    background: #000;
+    color: #fff;
+    text-align: center;
+    padding: 7rem 1rem;
+}
+
+.hero-title {
+    font-size: 3.2rem;
+    max-width: 900px;
+    margin: 0 auto 1rem;
+    font-weight: 700;
+}
+
+.highlight {
+    color: #E5B800;
+}
+
+.hero-subtitle {
+    color: #d1d5db;
+    max-width: 600px;
+    margin: 0 auto 2.5rem;
+}
+
+.btn-primary {
+    padding: 1.2rem 3rem;
+    border-radius: 50px;
+    background: #E5B800;
+    font-weight: 700;
+    color: #000;
+    border: none;
+    cursor: pointer;
+    font-size: 1.2rem;
+}
+
+.hero-features {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    list-style: none;
+    margin-top: 2rem;
+}
+
+.feature-item {
+    color: #b8b8b8;
+    font-size: 0.95rem;
+}
+
+/* ---------------- */
+/* ESTATÍSTICAS */
+/* ---------------- */
+
+.stats {
+    background: #E5B800;
+    padding: 4rem 0;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit,minmax(220px,1fr));
+    text-align: center;
+    gap: 2rem;
+}
+
+.stat-card {
+    color: #000;
+}
+
+.stat-number {
+    font-size: 3.5rem;
+    font-weight: 800;
+}
+
+.stat-label {
+    font-weight: 500;
+}
+
+/* ---------------- */
+/* BENEFÍCIOS */
+/* ---------------- */
+
+.benefits {
+    padding: 5rem 0;
+    background: #f9fafb;
+}
+
+.section-title {
+    font-size: 2.3rem;
+    text-align: center;
+    margin-bottom: 0.7rem;
+}
+
+.section-subtitle {
+    color: #6b7280;
+    text-align: center;
+    max-width: 550px;
+    margin: 0 auto 3rem;
+}
+
+.benefits-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit,minmax(280px,1fr));
+    gap: 2rem;
+}
+
+.benefit-card {
+    background: #fff;
+    padding: 2rem;
+    border-radius: 1rem;
+    border: 1px solid #e5e7eb;
+    text-align: center;
+    transition: 0.3s ease;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+}
+
+.benefit-card:hover {
+    transform: translateY(-4px);
+}
+
+.benefit-icon {
+    font-size: 2rem;
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background: #FFF3CC;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+}
+
+.benefit-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 0.7rem;
+}
+
+.benefit-description {
+    color: #6b7280;
+}
+
+/* ---------------- */
+/* COMO FUNCIONA */
+/* ---------------- */
+
+.how-it-works {
+    padding: 5rem 0;
+}
+
+.steps-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit,minmax(200px,1fr));
+    gap: 2.5rem;
+    text-align: center;
+}
+
+/* .step-card {}
+
+.step-number {
+    width: 90px;
+    height: 90px;
+    background: #E5B800;
+    color: #000;
+    font-weight: 800;
+    font-size: 2rem;
+    border-radius: 50%;
+    margin: 0 auto 1rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+} */
+
+/* ---------------- */
+/* FORMULÁRIO */
+/* ---------------- */
+
+.form-section {
+    background: #f9fafb;
+    padding: 6rem 0;
+}
+
+.form-wrapper {
+    background: #E5B800;
+    padding: 3.5rem;
+    border-radius: 1.6rem;
+    max-width: 500px;
+}
+
+.form-title {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: #fff;
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.form-subtitle {
+    text-align: center;
+    color: #fff;
+    margin-bottom: 2rem;
+}
+
+.form {
+    display: grid;
+    gap: 1.3rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    font-weight: 600;
+    color: #000;
+}
+
+.form-group input,
+.form-group select {
+    padding: 0.9rem 1rem;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 1rem;
+}
+
+.btn-submit {
+    padding: 1rem;
+    background: #000;
+    color: #fff;
+    font-weight: 700;
+    border-radius: 0.7rem;
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+
+/* ---------------- */
+/* FOOTER */
+/* ---------------- */
+
+.footer {
+    background: #000;
+    color: #fff;
+    padding: 3rem 0;
+}
+
+.footer-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit,minmax(220px,1fr));
+    gap: 2rem;
+}
+
+.footer-brand {
+    color: #E5B800;
+    font-size: 1.6rem;
+}
+
+.footer-text {
+    color: #ccc;
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+}
+
+.footer-title {
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+.footer-links {
+    list-style: none;
+}
+
+.footer-links li {
+    margin-bottom: 0.5rem;
+}
+
+.footer-links a {
+    text-decoration: none;
+    color: #ccc;
+    transition: 0.3s;
+}
+
+.footer-links a:hover {
+    color: #E5B800;
+}
