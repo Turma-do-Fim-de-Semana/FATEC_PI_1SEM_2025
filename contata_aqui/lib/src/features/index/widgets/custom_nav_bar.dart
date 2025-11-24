@@ -16,6 +16,12 @@ class CustomNavBar extends StatelessWidget {
       case 2:
         Navigator.pushReplacementNamed(context, '/user');
         break;
+      case 3:
+        Navigator.pushReplacementNamed(context, '/chat_list');
+        break;
+      case 4:
+        Navigator.pushReplacementNamed(context, '/chat_screen');
+        break;
     }
   }
 
@@ -26,10 +32,15 @@ class CustomNavBar extends StatelessWidget {
       onTap: (index) => _onItemTapped(context, index),
       selectedItemColor: Colors.orange,
       unselectedItemColor: Colors.grey,
+      type: BottomNavigationBarType.fixed,
       items: const [
         BottomNavigationBarItem(icon: Icon(Icons.home), label: ''),
         BottomNavigationBarItem(icon: Icon(Icons.grid_view), label: ''),
         BottomNavigationBarItem(icon: Icon(Icons.person), label: ''),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.chat_bubble_outline),
+          label: '',
+        ),
       ],
     );
   }

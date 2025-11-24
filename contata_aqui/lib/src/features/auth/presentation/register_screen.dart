@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -14,6 +15,67 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
 
+  bool _isLoading = false;
+  final supabase = Supabase.instance.client;
+
+  void _showMessage(String msg) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+  }
+
+  bool _emailIsValid(String email) {
+    return RegExp(r'^[\w\.-]+@[\w\.-]+\.\w+$').hasMatch(email);
+  }
+
+  Future<void> _register() async {
+    if (_nameController.text.isEmpty ||
+        _emailController.text.isEmpty ||
+        _passwordController.text.isEmpty ||
+        _confirmPasswordController.text.isEmpty) {
+      _showMessage('Preencha todos os campos!');
+      return;
+    }
+
+    if (!_emailIsValid(_emailController.text.trim())) {
+      _showMessage('Email inválido!');
+      return;
+    }
+
+    if (_passwordController.text != _confirmPasswordController.text) {
+      _showMessage('Senhas não coincidem!');
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      // Cadastra usuário no Supabase Auth
+      final authResponse = await supabase.auth.signUp(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+      );
+
+      if (authResponse.user == null) {
+        _showMessage('Erro inesperado ao registrar usuário.');
+        return;
+      }
+
+      // Inserir usuário na tabela client
+      await supabase.from('client').insert({
+        'id': authResponse.user!.id,
+        'name': _nameController.text.trim(),
+        'email': _emailController.text.trim(),
+        'is_client': true,
+      });
+
+      _showMessage('Cadastro realizado com sucesso!');
+      Navigator.pushReplacementNamed(context, '/login');
+    } catch (e) {
+      _showMessage('Erro ao cadastrar: $e');
+    }
+
+    setState(() => _isLoading = false);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -22,10 +84,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Text(
+        title: const Text(
           'Cadastrar-se',
           style: TextStyle(color: Colors.white, fontSize: 16),
         ),
@@ -33,23 +95,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: EdgeInsets.all(24.0),
+          padding: const EdgeInsets.all(24.0),
           child: Column(
             children: [
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
 
-              // Card de Cadastro
               Container(
-                padding: EdgeInsets.all(32),
+                padding: const EdgeInsets.all(32),
                 decoration: BoxDecoration(
-                  color: Color(0xFFFFB800),
+                  color: const Color(0xFFFFB800),
                   borderRadius: BorderRadius.circular(24),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // Campo Nome Completo
-                    Text(
+                    const Text(
                       'Nome Completo:',
                       style: TextStyle(
                         fontSize: 16,
@@ -57,27 +117,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         color: Colors.black,
                       ),
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     TextField(
                       controller: _nameController,
                       decoration: InputDecoration(
                         filled: true,
-                        fillColor: Color(0xFFE0E0E0),
+                        fillColor: const Color(0xFFE0E0E0),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide: BorderSide.none,
                         ),
-                        contentPadding: EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 12,
-                        ),
                       ),
                     ),
 
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
 
-                    // Campo Email
-                    Text(
+                    const Text(
                       'Email:',
                       style: TextStyle(
                         fontSize: 16,
@@ -85,27 +140,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         color: Colors.black,
                       ),
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     TextField(
                       controller: _emailController,
                       decoration: InputDecoration(
                         filled: true,
-                        fillColor: Color(0xFFE0E0E0),
+                        fillColor: const Color(0xFFE0E0E0),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide: BorderSide.none,
                         ),
-                        contentPadding: EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 12,
-                        ),
                       ),
                     ),
 
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
 
-                    // Campo Senha
-                    Text(
+                    const Text(
                       'Senha:',
                       style: TextStyle(
                         fontSize: 16,
@@ -113,28 +163,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         color: Colors.black,
                       ),
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     TextField(
                       controller: _passwordController,
                       obscureText: true,
                       decoration: InputDecoration(
                         filled: true,
-                        fillColor: Color(0xFFE0E0E0),
+                        fillColor: const Color(0xFFE0E0E0),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide: BorderSide.none,
                         ),
-                        contentPadding: EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 12,
-                        ),
                       ),
                     ),
 
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
 
-                    // Campo Confirmar Senha
-                    Text(
+                    const Text(
                       'Confirmar Senha:',
                       style: TextStyle(
                         fontSize: 16,
@@ -142,43 +187,26 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         color: Colors.black,
                       ),
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     TextField(
                       controller: _confirmPasswordController,
                       obscureText: true,
                       decoration: InputDecoration(
                         filled: true,
-                        fillColor: Color(0xFFE0E0E0),
+                        fillColor: const Color(0xFFE0E0E0),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide: BorderSide.none,
                         ),
-                        contentPadding: EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 12,
-                        ),
                       ),
                     ),
 
-                    SizedBox(height: 32),
+                    const SizedBox(height: 32),
 
-                    // Botão Cadastrar
                     SizedBox(
                       height: 48,
                       child: ElevatedButton(
-                        onPressed: () {
-                          // Implementar lógica de cadastro
-                          if (_passwordController.text ==
-                              _confirmPasswordController.text) {
-                            print(
-                              'Cadastro: ${_nameController.text}, ${_emailController.text}',
-                            );
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('Senhas não coincidem!')),
-                            );
-                          }
-                        },
+                        onPressed: _isLoading ? null : _register,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.black,
                           foregroundColor: Colors.white,
@@ -187,50 +215,53 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ),
                           elevation: 0,
                         ),
-                        child: Text(
-                          'Cadastrar',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
+                        child:
+                            _isLoading
+                                ? const SizedBox(
+                                  height: 24,
+                                  width: 24,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Colors.white,
+                                  ),
+                                )
+                                : const Text(
+                                  'Cadastrar',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
                       ),
                     ),
 
-                    SizedBox(height: 24),
+                    const SizedBox(height: 24),
 
-                    // Botão Google
                     SizedBox(
                       height: 48,
                       child: ElevatedButton.icon(
-                        onPressed: () {
-                          // Implementar cadastro com Google
-                          print('Cadastro com Google');
-                        },
-                        icon: Text(
+                        onPressed:
+                            () => _showMessage('Google ainda não implementado'),
+                        icon: const Text(
                           'G',
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
-                        label: Text('Cadastrar com o Google'),
+                        label: const Text('Cadastrar com o Google'),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.white,
                           foregroundColor: Colors.black,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(24),
                           ),
-                          elevation: 0,
                         ),
                       ),
                     ),
 
-                    SizedBox(height: 16),
+                    const SizedBox(height: 16),
 
-                    // Link para login
                     TextButton(
-                      onPressed: () {
-                        Navigator.pushNamed(context, '/login');
-                      },
-                      child: Text(
+                      onPressed: () => Navigator.pushNamed(context, '/login'),
+                      child: const Text(
                         'Já tem uma conta? Logar',
                         style: TextStyle(
                           color: Colors.black,

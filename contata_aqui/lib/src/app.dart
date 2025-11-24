@@ -1,3 +1,6 @@
+import 'package:contata_aqui/src/features/chat_room/data/chat_room_model.dart';
+import 'package:contata_aqui/src/features/chat_room/presentation/chat_list_screen.dart';
+import 'package:contata_aqui/src/features/message/presentation/chat_screen.dart';
 import 'package:flutter/material.dart';
 
 import 'features/auth/presentation/login_screen.dart';
@@ -21,6 +24,16 @@ class App extends StatelessWidget {
         '/register': (context) => RegisterScreen(),
         '/index': (context) => IndexScreen(),
         '/contactlist': (context) => ContactListScreen(),
+        '/chat_list': (context) => ChatListScreen(),
+        '/chat_screen': (context) {
+          final args = ModalRoute.of(context)!.settings.arguments;
+          if (args is ChatRoomModel) {
+            return ChatScreen(room: args);
+          } else {
+            // caso sem args
+            return const Scaffold(body: Center(child: Text('Sala inválida')));
+          }
+        },
         '/user': (context) => UserScreen(),
       },
     );

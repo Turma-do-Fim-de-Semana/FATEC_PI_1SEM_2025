@@ -1,8 +1,8 @@
+import 'package:contata_aqui/src/features/chat_room/data/chat_room_model.dart';
+import 'package:contata_aqui/src/features/index/widgets/custom_nav_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-// ignore: depend_on_referenced_packages
-import 'package:url_launcher/url_launcher.dart';
 import 'package:contata_aqui/src/features/userprofile/data/professional_model.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class UserScreen extends StatelessWidget {
   const UserScreen({super.key});
@@ -11,6 +11,20 @@ class UserScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final professional =
         ModalRoute.of(context)!.settings.arguments as ProfessionalModel;
+
+    // Construção correta da URL da imagem do bucket
+    String? imageUrl;
+    if (professional.image != null && professional.image!.isNotEmpty) {
+      if (professional.image!.startsWith('http')) {
+        // Já está como URL completa
+        imageUrl = professional.image!;
+      } else {
+        // Gera URL a partir do bucket "professionals"
+        imageUrl = Supabase.instance.client.storage
+            .from('professionals')
+            .getPublicUrl(professional.image!);
+      }
+    }
 
     return Scaffold(
       backgroundColor: Colors.grey[100],
@@ -27,7 +41,7 @@ class UserScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Card com imagem do usuário
+            // FOTO DO PROFISSIONAL
             Center(
               child: Container(
                 width: 120,
@@ -45,36 +59,29 @@ class UserScreen extends StatelessWidget {
                   ],
                 ),
                 child: ClipOval(
-                  child: Container(
-                    padding: const EdgeInsets.all(8),
-                    child: ClipOval(
-                      child:
-                          professional.image != null
-                              ? Image.network(
-                                professional.image!,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) {
-                                  return Icon(
-                                    Icons.person,
-                                    size: 60,
-                                    color: Colors.grey[600],
-                                  );
-                                },
-                              )
-                              : Icon(
-                                Icons.person,
-                                size: 60,
-                                color: Colors.grey[600],
-                              ),
-                    ),
-                  ),
+                  child:
+                      imageUrl != null
+                          ? Image.network(
+                            imageUrl,
+                            fit: BoxFit.cover,
+                            errorBuilder:
+                                (_, __, ___) => Icon(
+                                  Icons.person,
+                                  size: 60,
+                                  color: Colors.grey[600],
+                                ),
+                          )
+                          : Icon(
+                            Icons.person,
+                            size: 60,
+                            color: Colors.grey[600],
+                          ),
                 ),
               ),
             ),
-
             const SizedBox(height: 20),
 
-            // Card de informações do serviço
+            // CARD DE INFORMAÇÕES
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(20),
@@ -99,7 +106,7 @@ class UserScreen extends StatelessWidget {
                       Text(
                         professional.schedule ?? '',
                         style: const TextStyle(
-                          fontSize: 18,
+                          fontSize: 16,
                           fontWeight: FontWeight.bold,
                           color: Colors.orange,
                         ),
@@ -121,66 +128,86 @@ class UserScreen extends StatelessWidget {
                   const SizedBox(height: 12),
 
                   // Cidade
-                  if (professional.city != null)
+                  if (professional.city_state != null &&
+                      professional.city_state!.isNotEmpty)
                     Row(
                       children: [
                         const Icon(Icons.location_on, size: 16),
                         const SizedBox(width: 4),
-                        Text(professional.city!),
+                        Text(professional.city_state!),
                       ],
                     ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 8),
 
                   // Email
                   Row(
                     children: [
                       const Icon(Icons.email, size: 16),
                       const SizedBox(width: 4),
-                      Text(professional.email),
+                      Expanded(
+                        child: Text(
+                          professional.email,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
                     ],
                   ),
                 ],
               ),
             ),
+
             const SizedBox(height: 20),
             const Spacer(),
-            // Botão WhatsApp
             SizedBox(
               width: double.infinity,
               height: 56,
               child: ElevatedButton.icon(
                 onPressed: () async {
-                  final phone = professional.phone?.replaceAll(
-                    RegExp(r'\D'),
-                    '',
-                  );
-                  if (phone != null && phone.isNotEmpty) {
-                    final url = Uri.parse('https://wa.me/55$phone');
-                    if (await canLaunchUrl(url)) {
-                      await launchUrl(
-                        url,
-                        mode: LaunchMode.externalApplication,
-                      );
-                    } else {
-                      // ignore: use_build_context_synchronously
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Não foi possível abrir o WhatsApp'),
-                        ),
-                      );
-                    }
-                  } else {
+                  final supabase = Supabase.instance.client;
+
+                  final userId = supabase.auth.currentUser?.id;
+                  if (userId == null) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Telefone não disponível')),
+                      const SnackBar(
+                        content: Text('Erro: usuário não autenticado'),
+                      ),
                     );
+                    return;
                   }
+
+                  final existing =
+                      await supabase
+                          .from('chat_room')
+                          .select()
+                          .eq('client_id', userId)
+                          .eq('professional_id', professional.id_professional)
+                          .maybeSingle();
+
+                  dynamic room = existing;
+                  room ??=
+                      await supabase
+                          .from('chat_room')
+                          .insert({
+                            'client_id': userId,
+                            'professional_id': professional.id_professional,
+                          })
+                          .select()
+                          .single();
+
+                  // 3️⃣ Vai para a conversa
+                  Navigator.pushNamed(
+                    // ignore: use_build_context_synchronously
+                    context,
+                    '/chat_screen',
+                    arguments: ChatRoomModel.fromJson(room),
+                  );
                 },
-                icon: const FaIcon(
-                  FontAwesomeIcons.whatsapp,
+                icon: const Icon(
+                  Icons.chat_bubble_outline,
                   color: Colors.white,
                 ),
                 label: const Text(
-                  'Entrar em contato',
+                  'Iniciar conversa',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 16,
@@ -188,7 +215,7 @@ class UserScreen extends StatelessWidget {
                   ),
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
+                  backgroundColor: Colors.orange,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(28),
                   ),
@@ -198,17 +225,7 @@ class UserScreen extends StatelessWidget {
           ],
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 2,
-        onTap: (_) {},
-        selectedItemColor: Colors.orange,
-        unselectedItemColor: Colors.grey,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.grid_view), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: ''),
-        ],
-      ),
+      bottomNavigationBar: const CustomNavBar(currentIndex: 2),
     );
   }
 }

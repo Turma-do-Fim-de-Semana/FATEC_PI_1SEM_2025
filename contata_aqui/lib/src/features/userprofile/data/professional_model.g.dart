@@ -13,10 +13,15 @@ _ProfessionalModel _$ProfessionalModelFromJson(Map<String, dynamic> json) =>
       phone: json['phone'] as String?,
       email: json['email'] as String,
       description: json['description'] as String?,
-      city: json['city'] as String?,
+      cep: json['cep'] as String?,
+      address: json['address'] as String?,
+      city_state: json['city_state'] as String?,
+      latitude: json['latitude'] as String?,
+      longitude: json['longitude'] as String?,
       image: json['image'] as String?,
       category_id: json['category_id'] as String?,
       schedule: json['schedule'] as String?,
+      is_provider: json['is_provider'] as bool?,
       created_at:
           json['created_at'] == null
               ? null
@@ -34,10 +39,15 @@ Map<String, dynamic> _$ProfessionalModelToJson(_ProfessionalModel instance) =>
       'phone': instance.phone,
       'email': instance.email,
       'description': instance.description,
-      'city': instance.city,
+      'cep': instance.cep,
+      'address': instance.address,
+      'city_state': instance.city_state,
+      'latitude': instance.latitude,
+      'longitude': instance.longitude,
       'image': instance.image,
       'category_id': instance.category_id,
       'schedule': instance.schedule,
+      'is_provider': instance.is_provider,
       'created_at': instance.created_at?.toIso8601String(),
       'updated_at': instance.updated_at?.toIso8601String(),
     };

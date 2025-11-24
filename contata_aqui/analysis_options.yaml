@@ -28,6 +28,8 @@ linter:
 # https://dart.dev/guides/language/analysis-options
 
 analyzer:
+  errors:
+    unused_element: ignore
   plugins: 
     - custom_lint
   exclude:

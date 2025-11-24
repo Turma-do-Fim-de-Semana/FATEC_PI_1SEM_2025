@@ -27,7 +27,7 @@ final professionalsProvider =
 typedef ProfessionalsRef =
     AutoDisposeFutureProviderRef<List<ProfessionalModel>>;
 String _$professionalsByCategoryHash() =>
-    r'80496223712db77a5a1d070eff2a9371fc3fd168';
+    r'ca135cce9626c8e342c662484d4fe6a830496a20';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -178,6 +178,130 @@ class _ProfessionalsByCategoryProviderElement
   @override
   String get categoryId =>
       (origin as ProfessionalsByCategoryProvider).categoryId;
+}
+
+String _$professionalByIdHash() => r'ad7108be385d50b356927483be8b835d073c2400';
+
+/// See also [professionalById].
+@ProviderFor(professionalById)
+const professionalByIdProvider = ProfessionalByIdFamily();
+
+/// See also [professionalById].
+class ProfessionalByIdFamily extends Family<AsyncValue<ProfessionalModel>> {
+  /// See also [professionalById].
+  const ProfessionalByIdFamily();
+
+  /// See also [professionalById].
+  ProfessionalByIdProvider call(String professionalId) {
+    return ProfessionalByIdProvider(professionalId);
+  }
+
+  @override
+  ProfessionalByIdProvider getProviderOverride(
+    covariant ProfessionalByIdProvider provider,
+  ) {
+    return call(provider.professionalId);
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'professionalByIdProvider';
+}
+
+/// See also [professionalById].
+class ProfessionalByIdProvider
+    extends AutoDisposeFutureProvider<ProfessionalModel> {
+  /// See also [professionalById].
+  ProfessionalByIdProvider(String professionalId)
+    : this._internal(
+        (ref) => professionalById(ref as ProfessionalByIdRef, professionalId),
+        from: professionalByIdProvider,
+        name: r'professionalByIdProvider',
+        debugGetCreateSourceHash:
+            const bool.fromEnvironment('dart.vm.product')
+                ? null
+                : _$professionalByIdHash,
+        dependencies: ProfessionalByIdFamily._dependencies,
+        allTransitiveDependencies:
+            ProfessionalByIdFamily._allTransitiveDependencies,
+        professionalId: professionalId,
+      );
+
+  ProfessionalByIdProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.professionalId,
+  }) : super.internal();
+
+  final String professionalId;
+
+  @override
+  Override overrideWith(
+    FutureOr<ProfessionalModel> Function(ProfessionalByIdRef provider) create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: ProfessionalByIdProvider._internal(
+        (ref) => create(ref as ProfessionalByIdRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        professionalId: professionalId,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeFutureProviderElement<ProfessionalModel> createElement() {
+    return _ProfessionalByIdProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is ProfessionalByIdProvider &&
+        other.professionalId == professionalId;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, professionalId.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+mixin ProfessionalByIdRef on AutoDisposeFutureProviderRef<ProfessionalModel> {
+  /// The parameter `professionalId` of this provider.
+  String get professionalId;
+}
+
+class _ProfessionalByIdProviderElement
+    extends AutoDisposeFutureProviderElement<ProfessionalModel>
+    with ProfessionalByIdRef {
+  _ProfessionalByIdProviderElement(super.provider);
+
+  @override
+  String get professionalId =>
+      (origin as ProfessionalByIdProvider).professionalId;
 }
 
 // ignore_for_file: type=lint

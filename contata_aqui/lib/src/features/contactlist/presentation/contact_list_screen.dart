@@ -1,6 +1,8 @@
+import 'package:contata_aqui/src/features/index/widgets/custom_nav_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:contata_aqui/src/features/userprofile/data/professional_viewmodel.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ContactListScreen extends ConsumerWidget {
   const ContactListScreen({super.key});
@@ -38,13 +40,29 @@ class ContactListScreen extends ConsumerWidget {
                       itemCount: list.length,
                       itemBuilder: (context, index) {
                         final pro = list[index];
+
+                        // constrói a imagem a partir do bucket
+                        String? imageUrl;
+
+                        if (pro.image != null && pro.image!.isNotEmpty) {
+                          if (pro.image!.startsWith('http')) {
+                            // já é uma URL completa
+                            imageUrl = pro.image!;
+                          } else {
+                            // gera URL a partir do bucket
+                            imageUrl = Supabase.instance.client.storage
+                                .from('professionals')
+                                .getPublicUrl(pro.image!);
+                          }
+                        }
+
                         return Card(
                           margin: const EdgeInsets.only(bottom: 12),
                           child: ListTile(
                             leading:
-                                pro.image != null
+                                imageUrl != null
                                     ? CircleAvatar(
-                                      backgroundImage: NetworkImage(pro.image!),
+                                      backgroundImage: NetworkImage(imageUrl),
                                     )
                                     : const CircleAvatar(
                                       backgroundColor: Colors.orange,
@@ -54,7 +72,11 @@ class ContactListScreen extends ConsumerWidget {
                                       ),
                                     ),
                             title: Text(pro.name),
-                            subtitle: Text(pro.city ?? 'Cidade não informada'),
+                            subtitle: Text(
+                              pro.city_state?.isNotEmpty == true
+                                  ? pro.city_state!
+                                  : 'Cidade não informada',
+                            ),
                             trailing: const Icon(Icons.arrow_forward_ios),
                             onTap: () {
                               Navigator.pushNamed(
@@ -74,19 +96,7 @@ class ContactListScreen extends ConsumerWidget {
                       (err, _) => Center(child: Text('Erro ao carregar: $err')),
                 ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 1,
-        onTap: (int index) {
-          // Navegação de abas, se quiser usar futuramente
-        },
-        selectedItemColor: Colors.orange,
-        unselectedItemColor: Colors.grey,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.grid_view), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: ''),
-        ],
-      ),
+      bottomNavigationBar: const CustomNavBar(currentIndex: 1),
     );
   }
 }

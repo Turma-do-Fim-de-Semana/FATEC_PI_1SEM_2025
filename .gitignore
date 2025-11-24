@@ -1,0 +1,8 @@
+# Diretório de cache de bytecode do Python
+__pycache__/
+
+# Arquivo de ambiente (se for o nome exato do arquivo)
+env
+
+# Arquivos de ambiente de configuração
+.env

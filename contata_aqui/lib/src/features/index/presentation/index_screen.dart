@@ -1,3 +1,4 @@
+import 'package:contata_aqui/src/features/index/widgets/custom_nav_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -15,7 +16,6 @@ class IndexScreen extends ConsumerStatefulWidget {
 }
 
 class _IndexScreenState extends ConsumerState<IndexScreen> {
-  int _selectedIndex = 0;
   final TextEditingController _searchController = TextEditingController();
   String searchText = '';
 
@@ -35,10 +35,6 @@ class _IndexScreenState extends ConsumerState<IndexScreen> {
     'Manicure e Pedicure': {
       'color': Colors.orange.shade100,
       'icon': 'lib/assets/image/unhas.svg',
-    },
-    'Fixineiras e Diarista': {
-      'color': Colors.blue.shade100,
-      'icon': 'lib/assets/image/faxina.svg',
     },
     'Jardineiro': {
       'color': Colors.green.shade100,
@@ -71,61 +67,64 @@ class _IndexScreenState extends ConsumerState<IndexScreen> {
   };
 
   Future<void> _getCurrentLocation() async {
-  var status = await Permission.location.status;
+    var status = await Permission.location.status;
 
-  // Se ainda não foi concedida, mostra o aviso antes
-  if (!status.isGranted) {
-    bool? aceitou = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text("Permitir localização"),
-        content: const Text(
-          "Ative a localização para encontrar profissionais próximos de você.",
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text("Agora não"),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: const Text("Permitir"),
-          ),
-        ],
-      ),
-    );
-
-    if (aceitou != true) return; // Usuário recusou na explicação
-  }
-
-  // Agora pede a permissão real
-  var result = await Permission.location.request();
-
-  if (result.isGranted) {
-    Position position = await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.high,
-    );
-
-    LatLng userLocation = LatLng(position.latitude, position.longitude);
-
-    setState(() {
-      _currentPosition = userLocation;
-      _userMarker = Marker(
-        markerId: const MarkerId('user'),
-        position: userLocation,
-        infoWindow: const InfoWindow(title: 'Você está aqui'),
+    // Se ainda não foi concedida, mostra o aviso antes
+    if (!status.isGranted) {
+      bool? aceitou = await showDialog<bool>(
+        context: context,
+        builder:
+            (context) => AlertDialog(
+              title: const Text("Permitir localização"),
+              content: const Text(
+                "Ative a localização para encontrar profissionais próximos de você.",
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: const Text("Agora não"),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(true),
+                  child: const Text("Permitir"),
+                ),
+              ],
+            ),
       );
-    });
 
-    _mapController?.animateCamera(
-      CameraUpdate.newLatLngZoom(userLocation, 15),
-    );
-  } else {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Permissão de localização negada')),
-    );
+      if (aceitou != true) return; // Usuário recusou na explicação
+    }
+
+    // Agora pede a permissão real
+    var result = await Permission.location.request();
+
+    if (result.isGranted) {
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+
+      LatLng userLocation = LatLng(position.latitude, position.longitude);
+
+      setState(() {
+        _currentPosition = userLocation;
+        _userMarker = Marker(
+          markerId: const MarkerId('user'),
+          position: userLocation,
+          infoWindow: const InfoWindow(title: 'Você está aqui'),
+        );
+      });
+
+      _mapController?.animateCamera(
+        CameraUpdate.newLatLngZoom(userLocation, 15),
+      );
+    } else {
+      // ignore: use_build_context_synchronously
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Permissão de localização negada')),
+      );
+    }
   }
-}
+
   @override
   void initState() {
     super.initState();
@@ -166,16 +165,6 @@ class _IndexScreenState extends ConsumerState<IndexScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  Container(
-                    width: 48,
-                    height: 48,
-                    decoration: BoxDecoration(
-                      color: Colors.black,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Icon(Icons.tune, color: Colors.white),
-                  ),
                 ],
               ),
             ),
@@ -189,23 +178,25 @@ class _IndexScreenState extends ConsumerState<IndexScreen> {
                     height: 180,
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(12),
-                      child: _currentPosition != null
-                          ? GoogleMap(
-                              initialCameraPosition: CameraPosition(
-                                target: _currentPosition!,
-                                zoom: 15,
+                      child:
+                          _currentPosition != null
+                              ? GoogleMap(
+                                initialCameraPosition: CameraPosition(
+                                  target: _currentPosition!,
+                                  zoom: 15,
+                                ),
+                                onMapCreated: (controller) {
+                                  _mapController = controller;
+                                },
+                                markers:
+                                    _userMarker != null
+                                        ? {_userMarker!}
+                                        : <Marker>{},
+                                myLocationButtonEnabled: false,
+                              )
+                              : const Center(
+                                child: CircularProgressIndicator(),
                               ),
-                              onMapCreated: (controller) {
-                                _mapController = controller;
-                              },
-                              markers: _userMarker != null
-                                  ? {_userMarker!}
-                                  : <Marker>{},
-                              myLocationButtonEnabled: false,
-                            )
-                          : const Center(
-                              child: CircularProgressIndicator(),
-                            ),
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -240,27 +231,32 @@ class _IndexScreenState extends ConsumerState<IndexScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: categoryAsync.when(
                   data: (categories) {
-                    final filtered = categories
-                        .where((cat) => cat.description
-                            .toLowerCase()
-                            .contains(searchText))
-                        .toList();
+                    final filtered =
+                        categories
+                            .where(
+                              (cat) => cat.description.toLowerCase().contains(
+                                searchText,
+                              ),
+                            )
+                            .toList();
 
                     return GridView.builder(
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        childAspectRatio: 1.2,
-                        crossAxisSpacing: 10,
-                        mainAxisSpacing: 12,
-                      ),
+                            crossAxisCount: 2,
+                            childAspectRatio: 1.2,
+                            crossAxisSpacing: 10,
+                            mainAxisSpacing: 12,
+                          ),
                       itemCount: filtered.length,
                       itemBuilder: (context, index) {
                         final category = filtered[index];
-                        final style = categoryStyles[category.description] ?? {
-                          'color': Colors.grey[300],
-                          'icon': 'lib/assets/image/default.svg',
-                        };
+                        final style =
+                            categoryStyles[category.description] ??
+                            {
+                              'color': Colors.grey[300],
+                              'icon': 'lib/assets/image/default.svg',
+                            };
 
                         return GestureDetector(
                           onTap: () {
@@ -299,31 +295,19 @@ class _IndexScreenState extends ConsumerState<IndexScreen> {
                       },
                     );
                   },
-                  loading: () =>
-                      const Center(child: CircularProgressIndicator()),
-                  error: (err, _) =>
-                      Center(child: Text('Erro ao carregar categorias: $err')),
+                  loading:
+                      () => const Center(child: CircularProgressIndicator()),
+                  error:
+                      (err, _) => Center(
+                        child: Text('Erro ao carregar categorias: $err'),
+                      ),
                 ),
               ),
             ),
           ],
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: (int index) {
-          setState(() {
-            _selectedIndex = index;
-          });
-        },
-        selectedItemColor: Colors.orange,
-        unselectedItemColor: Colors.grey,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.grid_view), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: ''),
-        ],
-      ),
+      bottomNavigationBar: const CustomNavBar(currentIndex: 0),
     );
   }
 }
