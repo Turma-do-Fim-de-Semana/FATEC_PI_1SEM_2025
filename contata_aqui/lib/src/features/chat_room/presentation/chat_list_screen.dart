@@ -17,7 +17,7 @@ class ChatListScreen extends ConsumerWidget {
 
     final rooms = ref.watch(chatRoomsUIProvider(uid));
 
-    return Scaffold(
+    return Scaffold( 
       appBar: AppBar(
         title: const Text("Conversas"),
         backgroundColor: Colors.orange,
