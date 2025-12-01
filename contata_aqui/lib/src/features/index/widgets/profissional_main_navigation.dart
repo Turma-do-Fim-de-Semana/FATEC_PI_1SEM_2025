@@ -1,25 +1,20 @@
 import 'package:contata_aqui/src/features/chat_room/presentation/chat_list_screen.dart';
-import 'package:contata_aqui/src/features/contactlist/presentation/contact_list_screen.dart';
-import 'package:contata_aqui/src/features/index/presentation/index_screen.dart';
-import 'package:contata_aqui/src/features/userprofile/presentation/user_profile_screen.dart';
+import 'package:contata_aqui/src/features/index/presentation/profissional_home_screen.dart';
 import 'package:flutter/material.dart';
 
-class CustomNavBar extends StatefulWidget {
-  const CustomNavBar({super.key});
+class ProfissionalMainNavigation extends StatefulWidget {
+  const ProfissionalMainNavigation({super.key});
 
   @override
-  State<CustomNavBar> createState() => _CustomNavBarState();
+  State<ProfissionalMainNavigation> createState() =>
+      _ProfissionalMainNavigationState();
 }
 
-class _CustomNavBarState extends State<CustomNavBar> {
+class _ProfissionalMainNavigationState
+    extends State<ProfissionalMainNavigation> {
   int _index = 0;
 
-  final pages = const [
-    IndexScreen(),
-    ContactListScreen(),
-    UserScreen(),
-    ChatListScreen(),
-  ];
+  final pages = const [ProfissionalHomeScreen(), ChatListScreen()];
 
   @override
   Widget build(BuildContext context) {
@@ -31,8 +26,6 @@ class _CustomNavBarState extends State<CustomNavBar> {
         unselectedItemColor: Colors.grey,
         onTap: (i) => setState(() => _index = i),
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.grid_view), label: ''),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: ''),
           BottomNavigationBarItem(
             icon: Icon(Icons.chat_bubble_outline),

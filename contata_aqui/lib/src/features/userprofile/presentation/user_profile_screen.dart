@@ -1,5 +1,4 @@
 import 'package:contata_aqui/src/features/chat_room/data/chat_room_model.dart';
-import 'package:contata_aqui/src/features/index/widgets/custom_nav_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:contata_aqui/src/features/userprofile/data/professional_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -225,7 +224,6 @@ class UserScreen extends StatelessWidget {
           ],
         ),
       ),
-      bottomNavigationBar: const CustomNavBar(currentIndex: 2),
     );
   }
 }

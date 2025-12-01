@@ -1,4 +1,3 @@
-import 'package:contata_aqui/src/features/index/widgets/custom_nav_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:contata_aqui/src/features/userprofile/data/professional_viewmodel.dart';
@@ -96,7 +95,6 @@ class ContactListScreen extends ConsumerWidget {
                       (err, _) => Center(child: Text('Erro ao carregar: $err')),
                 ),
       ),
-      bottomNavigationBar: const CustomNavBar(currentIndex: 1),
     );
   }
 }

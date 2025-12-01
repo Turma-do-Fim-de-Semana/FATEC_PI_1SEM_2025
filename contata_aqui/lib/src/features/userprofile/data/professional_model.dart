@@ -1,3 +1,4 @@
+// lib/src/features/userprofile/data/professional_model.dart
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'professional_model.freezed.dart';

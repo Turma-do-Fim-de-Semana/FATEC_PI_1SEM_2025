@@ -19,6 +19,19 @@ def cadastrar_profissional(request):
         if form.is_valid():
             data = form.cleaned_data
 
+            # 1️⃣ Criar usuário no Supabase Auth
+            auth_response = supabase.auth.sign_up({
+                "email": data["email"],
+                "password": data["password"]
+            })
+
+            if auth_response.user is None:
+                messages.error(request, "Erro ao criar usuário de autenticação")
+                return render(request, "forms_page/cadastrar_profissional.html", {"form": form})
+
+            user_id = auth_response.user.id  # ID do Supabase Auth
+
+            # 2️⃣ Upload da imagem (se existir)
             image_url = None
             file = request.FILES.get("image")
             if file:
@@ -27,11 +40,13 @@ def cadastrar_profissional(request):
                 bucket.upload(filename, file.read(), file_options={"content-type": file.content_type})
                 image_url = bucket.get_public_url(filename)
 
+            # 3️⃣ Salvar dados na tabela professional
             payload = {
+                "id_professional": user_id,       # garante login no app!
                 "name": data["name"],
                 "phone": data["phone"],
                 "email": data["email"],
-                "password": data["password"],
+                "password": data["password"],     # pode ser removido futuramente
                 "description": data["description"],
                 "cep": data["cep"],
                 "address": data["address"],
@@ -45,6 +60,7 @@ def cadastrar_profissional(request):
             }
 
             supabase.table("professional").insert(payload).execute()
+
             return redirect("sucesso")
 
     else:

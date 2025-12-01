@@ -1,4 +1,3 @@
-import 'package:contata_aqui/src/features/index/widgets/custom_nav_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -307,7 +306,6 @@ class _IndexScreenState extends ConsumerState<IndexScreen> {
           ],
         ),
       ),
-      bottomNavigationBar: const CustomNavBar(currentIndex: 0),
     );
   }
 }
